@@ -9,7 +9,7 @@ class HelloSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=10)
 
 
-class UserProfileSerializer(serializers.ModSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     """
     serializes a user profile object
     """
@@ -35,3 +35,14 @@ class UserProfileSerializer(serializers.ModSerializer):
         )
 
         return user
+
+    # temp fix of serialzer bug, user password is plain text and unable to login otherwise
+    def update(self, instance, validated_data):
+        """
+        Handle updating user account
+        """
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)
